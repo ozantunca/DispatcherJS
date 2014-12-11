@@ -1,6 +1,5 @@
-var dispatcher = require("../client/bundles/common/dispatcher")
-    , assert = require("assert")
-    , _ = require('underscore')
+var dispatcher = require('../../dist/dispatcher')
+    , assert = require('assert');
 
 
 describe('lib.dispatcher', function() {
