@@ -150,6 +150,50 @@ describe('lib.dispatcher', function() {
       dispatcher.emit('event9');
     });
 
+    it('should support promises', function (done) {
+      this.timeout(6500);
+      var start = Date.now();
+      dispatcher.removeAllListeners();
+      var result = 0;
+
+      dispatcher.on('a.n1', function () {
+        var fn;
+        var promise = {
+          then: function (func) {
+            fn = func;
+          }
+        };
+        setTimeout(function () {
+          result++;
+          fn();
+        }, 2000);
+        return promise;
+      });
+
+      dispatcher.on('a.n2', '.n1', function() {
+        var fn;
+        var promise = {
+          then: function (func) {
+            fn = func;
+          }
+        };
+        setTimeout(function () {
+          result++;
+          fn();
+        }, 1500);
+        return promise;
+      });
+
+      dispatcher.on('a', ['.n1', '.n2'], function () {
+        if(result == 2) {
+          assert.ok(true);
+          done();
+        }
+      });
+
+      dispatcher.emit('a');
+    })
+
     // it('should execute multiple dependencies in order (wild)', function (done) {
     //   this.timeout(5000);
     //   dispatcher.removeAllListeners();

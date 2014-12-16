@@ -109,7 +109,7 @@ var dispatcher = {
     // common variables
     var deferredListeners = []
       , listenerArray = this._listeners.slice()
-      , listener, _match;
+      , listener, _match, promise;
 
     // check for namespace
     if(eventName.indexOf('.') != -1) {
@@ -136,9 +136,17 @@ var dispatcher = {
 
         // run listener
         if(arguments.length > 1)
-          listener.apply(null, arguments);
+          promise = listener.apply(null, arguments);
         else
-          listener();
+          promise = listener();
+
+        if(promise && promise.then) {
+          console.log('has promise')
+          deferredListeners.push(listener);
+          promise.then(function () {
+            deferredListeners.splice(deferredListeners.indexOf(listener), 1);
+          });
+        }
       }
 
       // remove one time listeners
@@ -159,6 +167,13 @@ var dispatcher = {
             listener.apply(null, arguments);
           else
             listener();
+
+          if(promise && promise.then) {
+            deferredListeners.unshift(listener);
+            promise.then(function () {
+              deferredListeners.splice(deferredListeners.indexOf(listener), 1);
+            });
+          }
         } else {
           deferredListeners.unshift(listener);
         }
