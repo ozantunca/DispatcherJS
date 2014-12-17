@@ -22,6 +22,8 @@
       this._listeners = [];
     },
 
+    setMaxListeners: function () {},
+
     on: function (eventName, dependencies, listener) {
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
