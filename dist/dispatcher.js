@@ -138,7 +138,7 @@
           if(arguments.length > 1)
             promise = listener.apply(null, arguments);
           else
-            promise = listener();
+            promise = listener(eventName + '.' + namespace);
 
           if(promise && promise.then) {
             waitingAsync++;
@@ -199,7 +199,7 @@
           if(arguments.length > 1)
             promise = listener.apply(null, arguments);
           else
-            promise = listener();
+            promise = listener(eventName + '.' + namespace);
 
           if(promise && promise.then) {
             waitingAsync++;
@@ -225,8 +225,6 @@
 
   dispatcher.removeListener = dispatcher.off;
   dispatcher.addListener = dispatcher.on;
-
-  module.exports = dispatcher;
 
   if (typeof define === 'function' && define.amd) {
      // AMD. Register as an anonymous module.
