@@ -73,11 +73,11 @@ var dispatcher = {
   },
 
   _matchWithNamespace: function (eventName, listenerEventName, namespace) {
-    return eventName == listenerEventName || listenerEventName == namespace || listenerEventName == '*';
+    return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName == namespace || listenerEventName == '*';
   },
 
   _matchEvent: function (eventName, listenerEventName) {
-    return eventName == listenerEventName || listenerEventName.indexOf(eventName + '.') > -1 || listenerEventName == '*';
+    return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName.indexOf(eventName + '.') == 0 || listenerEventName == '*';
   },
 
   _matchArray: function (listenerArray, eventName) {
@@ -157,7 +157,7 @@ var dispatcher = {
 
   emit: function (eventName) {
     if(!eventName) {
-      return new Error('Nothing to emit.');
+      throw new Error('Nothing to emit.');
     }
 
     // common variables
@@ -178,7 +178,7 @@ var dispatcher = {
     }
 
     if(!eventName) {
-      return new Error('Nothing to emit.');
+      throw new Error('Nothing to emit.');
     }
 
     while(listener = listenerArray.pop()) {

@@ -9,6 +9,7 @@ describe('lib.dispatcher', function() {
       var len = size(dispatcher._listeners);
       dispatcher.on('event1', function () {});
       assert.equal(size(dispatcher._listeners), len + 1);
+      dispatcher.removeAllListeners();
     });
 
     it('should listen all', function (done) {
@@ -22,6 +23,37 @@ describe('lib.dispatcher', function() {
       });
       dispatcher.emit('all1');
       dispatcher.emit('all2');
+      dispatcher.removeAllListeners();
+    });
+
+    it('should support multi-tier event names', function (done) {
+      var count = 0;
+      dispatcher.on('tier1', function () {
+        count++;
+        if(count == 3) {
+          assert.ok(true);
+          done();
+        }
+      });
+      dispatcher.emit('tier1');
+      dispatcher.emit('tier1:tier2');
+      dispatcher.emit('tier1:tier2:tier3');
+      dispatcher.removeAllListeners();
+    });
+
+    it('should only catch events with same number of tiers or more', function (done) {
+      var count = 0;
+      dispatcher.on('tier1:tier2', function () {
+        count++;
+        if(count == 2) {
+          assert.ok(true);
+          done();
+        }
+      });
+      dispatcher.emit('tier1');
+      dispatcher.emit('tier1:tier2');
+      dispatcher.emit('tier1:tier2:tier3');
+      dispatcher.removeAllListeners();
     });
   });
 
@@ -41,6 +73,7 @@ describe('lib.dispatcher', function() {
 
   describe('off()', function() {
     it('should remove from listeners array', function () {
+      dispatcher.on('event1', function () {});
       var len = size(dispatcher._listeners);
       dispatcher.off('event1');
       assert.equal(size(dispatcher._listeners), len - 1);
@@ -152,7 +185,6 @@ describe('lib.dispatcher', function() {
 
     it('should support promises', function (done) {
       this.timeout(6500);
-      var start = Date.now();
       dispatcher.removeAllListeners();
       var result = 0;
 
@@ -192,112 +224,7 @@ describe('lib.dispatcher', function() {
       });
 
       dispatcher.emit('a');
-    })
-
-    // it('should execute multiple dependencies in order (wild)', function (done) {
-    //   this.timeout(5000);
-    //   dispatcher.removeAllListeners();
-    //   var count = 0;
-    //   // a
-    //   dispatcher.on('a', function () {
-    //     console.log(count + ': called a')
-    //     if(count != 15) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // b.n1
-    //   dispatcher.on('b.n1', function () {
-    //     console.log(count + ': called b.n1')
-    //     if(count != 5) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // c.n1[.n1]
-    //   dispatcher.on('c.n1', ['.n1'], function () {
-    //     console.log(count + ': called c.n1')
-    //     if(count != 0 && count != 6) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // a.n2
-    //   dispatcher.on('a.n2', function () {
-    //     console.log(count + ': called a.n2')
-    //     if(count != 14 && count != 21) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // b.n2[a] expectedCount: 3
-    //   dispatcher.on('b.n2', ['a'], function () {
-    //     console.log(count + ': called b.n2')
-    //     if(count != 22) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   })
-    //   // d[b] expectedCount: 4
-    //   dispatcher.on('d', ['b'], function () {
-    //     console.log(count + ': called d')
-    //     if(count++ != 18) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //   });
-    //   // c.n2[d]
-    //   dispatcher.on('c.n2', ['d'], function () {
-    //     console.log(count + ': called c.n2')
-    //     if(count != 1 && count != 6 && count != 12 && count != 20) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // d.n1[b]
-    //   dispatcher.on('d.n1', ['b'], function () {
-    //     console.log(count + ': called d.n1')
-    //     if(count != 17 && count != 4) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // e[.n1,.n2]
-    //   dispatcher.on('e', ['.n1', '.n2'], function () {
-    //     console.log(count + ': called e')
-    //     if(count != 8 && count != 10) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-    //     count++;
-    //   });
-    //   // *[.n2]
-    //   dispatcher.on('*', ['.n2'], function () {
-    //     console.log(count + ': called *')
-    //     if(count != 2 && count != 3 && count != 7 && count != 9 && count != 11 && count != 13 && count != 16 && count != 19) {
-    //       assert.ok(false);
-    //       done();
-    //     }
-
-    //     if(false) {
-    //       assert.ok(true);
-    //       done();
-    //     }
-
-    //     count++;
-    //   });
-
-    //   dispatcher.emit('c');
-    //   // console.log(dispatcher._listeners);
-    //   dispatcher.emit('.n1');
-    // });
+    });
   })
 });
 
