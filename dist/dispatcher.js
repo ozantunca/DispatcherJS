@@ -54,6 +54,9 @@
     },
 
     listeners: function (eventName) {
+      if(!eventName)
+        return this._listeners;
+
       var eventParts = eventName.split('.')
         , eventName = eventParts[0]
         , namespace = eventParts[1] ? '.' + eventParts[1] : null
