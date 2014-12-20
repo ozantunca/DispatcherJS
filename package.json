@@ -1,5 +1,5 @@
 {
-  "name": "DispatcherJS",
+  "name": "dispatcherjs",
   "description": "An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.",
   "version": "0.4.0",
   "main": "./dist/dispatcher",
