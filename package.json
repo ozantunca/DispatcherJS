@@ -1,0 +1,30 @@
+{
+  "name": "DispatcherJS",
+  "description": "An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.",
+  "version": "0.4.0",
+  "main": "./dist/dispatcher",
+  "author": {
+    "name": "Ozan Tunca"
+  },
+  "devDependencies": {
+    "mocha": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ozantunca/DispatcherJS.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ozantunca/DispatcherJS/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/ozantunca/DispatcherJS/raw/master/LICENSE"
+    }
+  ],
+  "scripts": {
+    "test": "mocha test/unit/dispatcher-mocha.js"
+  },
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/ozantunca/DispatcherJS"
+}
