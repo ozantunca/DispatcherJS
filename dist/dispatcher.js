@@ -22,6 +22,7 @@
       this._listeners = [];
     },
 
+    // some other time
     setMaxListeners: function () {},
 
     on: function (eventName, dependencies, listener) {
@@ -39,14 +40,17 @@
 
     off: function (eventName, listener) {
       if(typeof eventName === 'undefined') return;
+      var listeners = this._listeners.slice();
       if(listener) {
-        for(var i = 0; i < this._listeners.length; i++) {
+        var i = this._listeners.length;
+        while(i--) {
           if(eventName == this._listeners[i].eventName && this._listeners[i] === listener)
             this._listeners.splice(i, 1);
         }
       }
       else {
-        for(var i = 0; i < this._listeners.length; i++) {
+        var i = this._listeners.length;
+        while(i--) {
           if(eventName == this._listeners[i].eventName)
             this._listeners.splice(i, 1);
         }
