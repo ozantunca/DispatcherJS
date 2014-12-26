@@ -5,6 +5,8 @@
   var dispatcher = {
     _listeners: [],
 
+    _maxListeners: 10,
+
     _parseListener: function (dependencies, listener) {
       if(typeof dependencies == 'function') {
         listener = dependencies;
@@ -23,7 +25,9 @@
     },
 
     // some other time
-    setMaxListeners: function () {},
+    setMaxListeners: function (num) {
+      this._maxListeners = num;
+    },
 
     on: function (eventName, dependencies, listener) {
       listener = this._parseListener(dependencies, listener);
@@ -40,18 +44,16 @@
 
     off: function (eventName, listener) {
       if(typeof eventName === 'undefined') return;
-      var listeners = this._listeners.slice();
+      var _listeners = this._listeners.slice();
       if(listener) {
-        var i = this._listeners.length;
-        while(i--) {
-          if(eventName == this._listeners[i].eventName && this._listeners[i] === listener)
+        while(l = _listeners.pop()) {
+          if(eventName == l.eventName && l === listener)
             this._listeners.splice(i, 1);
         }
       }
       else {
-        var i = this._listeners.length;
-        while(i--) {
-          if(eventName == this._listeners[i].eventName)
+        while(l = _listeners.pop()) {
+          if(eventName == l.eventName)
             this._listeners.splice(i, 1);
         }
       }
@@ -118,7 +120,7 @@
         , _this = this
         , deadlockCounter = 0;
 
-      deferredLength = deadlockCounter = deferredListeners.length;;
+      deferredLength = deadlockCounter = deferredListeners.length;
 
       while(listener = deferredListeners.pop()) {
         if(deadlockCounter == 0) {
