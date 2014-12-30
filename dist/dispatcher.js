@@ -8,15 +8,19 @@
     _maxListeners: 10,
 
     _parseListener: function (dependencies, listener) {
+      var newListener = {
+        fn: listener
+      };
+
       if(typeof dependencies == 'function') {
-        listener = dependencies;
+        newListener.fn = dependencies;
       } else if(Array.isArray(dependencies)) {
-        listener.dependencies = dependencies;
+        newListener.dependencies = dependencies;
       } else if(typeof dependencies == 'string') {
-        listener.dependencies = [dependencies];
+        newListener.dependencies = [dependencies];
       } else throw new Error('EventHandler is not a function.');
 
-      return listener;
+      return newListener;
     },
 
     removeAllListeners: function (eventName) {
@@ -30,12 +34,18 @@
     },
 
     on: function (eventName, dependencies, listener) {
+      // if(this.listeners(eventName) >= this._maxListeners)
+      //   return;
+
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
       this._listeners.push(listener);
     },
 
     once: function (eventName, dependencies, listener) {
+      // if(this.listeners(eventName) >= this._maxListeners)
+      //   return;
+
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
       listener.once = true;
@@ -44,16 +54,17 @@
 
     off: function (eventName, listener) {
       if(typeof eventName === 'undefined') return;
-      var _listeners = this._listeners.slice();
       if(listener) {
-        while(l = _listeners.pop()) {
-          if(eventName == l.eventName && l === listener)
+        var i = this._listeners.length;
+        while(i--) {
+          if(eventName == this._listeners[i].eventName && this._listeners[i].fn === listener)
             this._listeners.splice(i, 1);
         }
       }
       else {
-        while(l = _listeners.pop()) {
-          if(eventName == l.eventName)
+        var i = this._listeners.length;
+        while(i--) {
+          if(eventName == this._listeners[i].eventName)
             this._listeners.splice(i, 1);
         }
       }
@@ -66,6 +77,7 @@
       var eventParts = eventName.split('.')
         , eventName = eventParts[0]
         , namespace = eventParts[1] ? '.' + eventParts[1] : null
+        , _match
         , results = [];
 
       if(namespace)
@@ -75,7 +87,7 @@
 
       if(typeof this._listeners.filter == 'function')
         return this._listeners.filter(function (listener) {
-          _match(eventName, listener.eventName, namespace);
+          return _match(eventName, listener.eventName, namespace);
         });
       else {
         for(var i = 0; i < this._listeners; i++) {
@@ -87,11 +99,11 @@
     },
 
     _matchWithNamespace: function (eventName, listenerEventName, namespace) {
-      return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName == namespace || listenerEventName == '*';
+      return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName == namespace || listenerEventName == '*' || eventName.indexOf(listenerEventName.substring(0, listenerEventName.indexOf('.')) + ':') == 0;
     },
 
     _matchEvent: function (eventName, listenerEventName) {
-      return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName.indexOf(eventName + '.') == 0 || listenerEventName == '*';
+      return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0 || listenerEventName.indexOf(eventName + '.') == 0 || listenerEventName == '*' || eventName.indexOf(listenerEventName.substring(0, listenerEventName.indexOf('.')) + ':') == 0;
     },
 
     _matchArray: function (listenerArray, eventName) {
@@ -115,7 +127,7 @@
       return false;
     },
 
-    _deferredLoop: function (deferredListeners, waitingAsync) {
+    _deferredLoop: function (deferredListeners, waitingAsync, context) {
       var deferredLength, listener, promise, dependent
         , _this = this
         , deadlockCounter = 0;
@@ -144,18 +156,16 @@
 
         if(!dependent) {
           // run listener
-          if(arguments.length > 1)
-            promise = listener.apply(null, arguments);
-          else
-            promise = listener(eventName + '.' + namespace);
+          promise = listener.fn(context);
 
           if(promise && promise.then) {
             waitingAsync++;
             deferredListeners.unshift(listener);
+
             // run promise
             promise.then(function () {
               waitingAsync--;
-              _this._deferredLoop(deferredListeners, waitingAsync);
+              _this._deferredLoop(deferredListeners, waitingAsync, context);
             });
           }
         } else {
@@ -179,6 +189,10 @@
         , listenerArray = this._listeners.slice()
         , waitingAsync = 0
         , _this = this
+        , context = {
+          arguments: typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 1) : [],
+          event: eventName
+        }
         , listener, _match, promise;
 
       // check for namespace
@@ -205,18 +219,16 @@
           }
 
           // run listener
-          if(arguments.length > 1)
-            promise = listener.apply(null, arguments);
-          else
-            promise = listener(eventName + '.' + namespace);
+          promise = listener.fn(context);
 
           if(promise && promise.then) {
             waitingAsync++;
             deferredListeners.push(listener);
+
             // run promise
             promise.then(function () {
               waitingAsync--;
-              _this._deferredLoop(deferredListeners, waitingAsync);
+              _this._deferredLoop(deferredListeners, waitingAsync, context);
             });
           }
         }
@@ -228,7 +240,7 @@
 
       // check if there is callback dependency
       if(deferredListeners.length > 0)
-        _this._deferredLoop(deferredListeners, waitingAsync);
+        _this._deferredLoop(deferredListeners, waitingAsync, context);
     }
   }
 

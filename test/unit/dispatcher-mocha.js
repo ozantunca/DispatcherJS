@@ -2,12 +2,15 @@ var dispatcher = require('../../dist/dispatcher')
     , assert = require('assert');
 
 
+function someFn() { 1 == 1; };
+function someFn2() { 2 == 2; };
+
 describe('lib.dispatcher', function() {
 
   describe('on()', function() {
     it('should add to listeners array', function () {
       var len = size(dispatcher._listeners);
-      dispatcher.on('event1', function () {});
+      dispatcher.on('event1', someFn);
       assert.equal(size(dispatcher._listeners), len + 1);
       dispatcher.removeAllListeners();
     });
@@ -55,12 +58,19 @@ describe('lib.dispatcher', function() {
       dispatcher.emit('tier1:tier2:tier3');
       dispatcher.removeAllListeners();
     });
+
+    // it('should\'nt get more than 10 listeners', function () {
+    //   for(var i = 0; i < 12; i++) {
+    //     dispatcher.on('a', someFn);
+    //   }
+    //   assert.equal(dispatcher._listeners, 10);
+    // })
   });
 
   describe('once()', function() {
     it('should add to listeners array when .once() called', function () {
       var len = size(dispatcher._listeners);
-      dispatcher.once('event2', function () {});
+      dispatcher.once('event2', someFn);
       assert.equal(size(dispatcher._listeners), len + 1);
     });
 
@@ -73,20 +83,18 @@ describe('lib.dispatcher', function() {
 
   describe('off()', function() {
     it('should remove from listeners array', function () {
-      dispatcher.on('event1', function () {});
+      dispatcher.on('event1', someFn);
       var len = size(dispatcher._listeners);
       dispatcher.off('event1');
       assert.equal(size(dispatcher._listeners), len - 1);
     });
 
     it('should be able to remove a spesific listener', function () {
-      function handler1() { 1 == 1; }
-      function handler2() { 2 == 2; }
-      dispatcher.on('event1', handler1);
-      dispatcher.on('event1', handler2);
+      dispatcher.on('event1', someFn);
+      dispatcher.on('event1', someFn2);
 
       var len = size(dispatcher._listeners);
-      dispatcher.off('event1', handler1);
+      dispatcher.off('event1', someFn);
       assert.equal(size(dispatcher._listeners), len - 1);
 
       dispatcher.off('event1');
@@ -104,13 +112,15 @@ describe('lib.dispatcher', function() {
     });
 
     it('should emit an event with parameters', function (done) {
-      dispatcher.on('event6', function () {
-        assert.ok(arguments.length > 1 && arguments[0] == 'event6', 'caught an emitted event');
+      dispatcher.on('event6', function (ctx) {
+        assert.ok(ctx.arguments.length > 0 && ctx.event == 'event6', 'caught an emitted event');
         dispatcher.off('event6');
         done();
       });
       dispatcher.emit('event6', 'test', 'something');
     });
+
+    // it('should ')
 
     it('should listen event4 of anything', function (done) {
       var len = size(dispatcher._listeners);
@@ -133,6 +143,24 @@ describe('lib.dispatcher', function() {
       });
       dispatcher.emit('event5.namespace1');
       dispatcher.emit('event6.namespace1');
+      dispatcher.removeAllListeners();
+    });
+  });
+
+  describe('listeners()', function() {
+    it('should return listeners of an event', function () {
+      dispatcher.on('a', someFn);
+      assert.equal(dispatcher.listeners('a').length, 1);
+
+      dispatcher.removeAllListeners();
+    });
+
+    it('should match multiple events', function () {
+      dispatcher.on('a', function (){});
+      dispatcher.on('a.namespace', function (){});
+      dispatcher.on('a:b.namespace', someFn);
+      assert.equal(dispatcher.listeners('a:b').length, 3);
+
       dispatcher.removeAllListeners();
     });
   });
@@ -230,16 +258,21 @@ describe('lib.dispatcher', function() {
 
 
 function size(listeners) {
-  if(typeof listeners === 'array' || typeof listeners === 'object') {
+  if(Array.isArray(listeners)) {
+    return listeners.length;
+  }
+  else if(typeof listeners === 'object') {
     var len = 0;
     for(var key in listeners) {
       var item = listeners[key];
       len += size(item);
     }
     return len;
-  } else if(listeners || listeners == 0) {
+  }
+  else if(listeners || listeners == 0) {
     return 1;
-  } else {
+  }
+  else {
     return 0;
   }
 }
