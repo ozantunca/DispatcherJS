@@ -40,6 +40,8 @@
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
       this._listeners.push(listener);
+      if(eventName != 'newListener')
+        this.emit('newListener', listener.fn);
     },
 
     once: function (eventName, dependencies, listener) {
@@ -50,6 +52,8 @@
       listener.eventName = eventName;
       listener.once = true;
       this._listeners.push(listener);
+      if(eventName != 'newListener')
+        this.emit('newListener', listener.fn);
     },
 
     off: function (eventName, listener) {
@@ -57,15 +61,19 @@
       if(listener) {
         var i = this._listeners.length;
         while(i--) {
-          if(eventName == this._listeners[i].eventName && this._listeners[i].fn === listener)
+          if(eventName == this._listeners[i].eventName && this._listeners[i].fn === listener) {
+            this.emit('removeListener', this._listeners[i].fn);
             this._listeners.splice(i, 1);
+          }
         }
       }
       else {
         var i = this._listeners.length;
         while(i--) {
-          if(eventName == this._listeners[i].eventName)
+          if(eventName == this._listeners[i].eventName) {
+            this.emit('removeListener', this._listeners[i].fn)
             this._listeners.splice(i, 1);
+          }
         }
       }
     },
@@ -168,6 +176,7 @@
               _this._deferredLoop(deferredListeners, waitingAsync, context);
             });
           }
+
         } else {
           deferredListeners.unshift(listener);
         }
@@ -231,11 +240,12 @@
               _this._deferredLoop(deferredListeners, waitingAsync, context);
             });
           }
+
+          // remove one time listeners
+          if(listener.once)
+            _this._listeners.splice(listenerArray.length, 1);
         }
 
-        // remove one time listeners
-        if(listener.once)
-          _this._listeners.splice(listenerArray.length, 1);
       }
 
       // check if there is callback dependency

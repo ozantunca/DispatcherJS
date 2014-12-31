@@ -72,6 +72,15 @@ describe('lib.dispatcher', function() {
       assert.equal(dispatcher._listeners.length, 10);
       dispatcher.removeAllListeners();
     })
+
+    it('should emit \'newListener\' event', function (done) {
+      dispatcher.on('newListener', function () {
+        assert.ok(true);
+        done();
+      });
+      dispatcher.on('event1', someFn);
+      dispatcher.removeAllListeners();
+    });
   });
 
   describe('once()', function() {
@@ -85,6 +94,15 @@ describe('lib.dispatcher', function() {
       var len = size(dispatcher._listeners);
       dispatcher.emit('event2');
       assert.equal(size(dispatcher._listeners), len - 1);
+    });
+
+    it('should emit \'newListener\' event', function (done) {
+      dispatcher.on('newListener', function () {
+        assert.ok(true);
+        done();
+      });
+      dispatcher.once('event1', someFn);
+      dispatcher.removeAllListeners();
     });
   });
 
@@ -103,8 +121,17 @@ describe('lib.dispatcher', function() {
       var len = size(dispatcher._listeners);
       dispatcher.off('event1', someFn);
       assert.equal(size(dispatcher._listeners), len - 1);
+      dispatcher.removeAllListeners();
+    });
 
-      dispatcher.off('event1');
+    it('should emit \'removeListener\' event', function (done) {
+      dispatcher.on('removeListener', function () {
+        assert.ok(true);
+        done();
+      });
+      dispatcher.on('event1', someFn);
+      dispatcher.off('event1', someFn);
+      dispatcher.removeAllListeners();
     });
   });
 
