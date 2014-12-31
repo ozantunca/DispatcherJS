@@ -143,3 +143,6 @@ An event without event name will not be emitted. Dispatcher will not emit a <cod
 
 ### dispatcher.setMaxListeners(limitNumber)
 Limits number of listeners that can be assigned to a an event. Default is 10.
+
+### Auto-emitted Events
+There are two events emitted automatically. One <code>'newListener'</code> which will be emitted when there is a new listener added to dispatcher. The other one is <code>'removeListener'</code> which will be emitted when a listener is removed. Only exception to this is when <code>dispatcher.removeAllListeners()</code> called because, you know, all listeners are removed including <code>removeListener</code> listeners.
