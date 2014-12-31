@@ -30,17 +30,23 @@ describe('lib.dispatcher', function() {
     });
 
     it('should support multi-tier event names', function (done) {
+      this.timeout(3000);
       var count = 0;
-      dispatcher.on('tier1', function () {
-        count++;
-        if(count == 3) {
+      setTimeout(function () {
+        if(count == 11) {
           assert.ok(true);
           done();
         }
-      });
+      }, 1500);
+      dispatcher.on('tier1', function () { count++; });
+      dispatcher.on('tier1:tier2.namespace', function () { count++; })
+      dispatcher.on('tier1.namespace2', function () { count++; })
+
       dispatcher.emit('tier1');
       dispatcher.emit('tier1:tier2');
       dispatcher.emit('tier1:tier2:tier3');
+      dispatcher.emit('tier1.namespace');
+      dispatcher.emit('tier1:tier2.namespace2');
       dispatcher.removeAllListeners();
     });
 
@@ -59,12 +65,13 @@ describe('lib.dispatcher', function() {
       dispatcher.removeAllListeners();
     });
 
-    // it('should\'nt get more than 10 listeners', function () {
-    //   for(var i = 0; i < 12; i++) {
-    //     dispatcher.on('a', someFn);
-    //   }
-    //   assert.equal(dispatcher._listeners, 10);
-    // })
+    it('should\'nt get more than 10 listeners', function () {
+      for(var i = 0; i < 14; i++) {
+        dispatcher.on('a', someFn);
+      }
+      assert.equal(dispatcher._listeners.length, 10);
+      dispatcher.removeAllListeners();
+    })
   });
 
   describe('once()', function() {
@@ -119,8 +126,6 @@ describe('lib.dispatcher', function() {
       });
       dispatcher.emit('event6', 'test', 'something');
     });
-
-    // it('should ')
 
     it('should listen event4 of anything', function (done) {
       var len = size(dispatcher._listeners);

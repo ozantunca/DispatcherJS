@@ -34,8 +34,8 @@
     },
 
     on: function (eventName, dependencies, listener) {
-      // if(this.listeners(eventName) >= this._maxListeners)
-      //   return;
+      if(this.listeners(eventName).length >= this._maxListeners)
+        return;
 
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
@@ -43,8 +43,8 @@
     },
 
     once: function (eventName, dependencies, listener) {
-      // if(this.listeners(eventName) >= this._maxListeners)
-      //   return;
+      if(this.listeners(eventName).length >= this._maxListeners)
+        return;
 
       listener = this._parseListener(dependencies, listener);
       listener.eventName = eventName;
