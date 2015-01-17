@@ -31,40 +31,40 @@ If you already have native Node.js EventEmitter implemented in your system, you 
 ### dispatcher.on(event[, dependencies], listener)
 Adds a listener for a specified event.
 ```javascript
-  dispatcher.on('request', function (arg1, arg2) {
-      console.log('We have received a request.');
-    });
+  dispatcher.on('request', function (context) {
+    console.log('We have received a request.');
+  });
 ```
 A namespace can also be specified with or without an event using <code>.</code> delimiter. For example let's assume there is a request for API. A ```.api``` namespace can be added to provide more specific naming.
 
 ```javascript
-  dispatcher.on('request.api', function (arg1, arg2) {
-      console.log('We have received a request for API.');
-    });
+  dispatcher.on('request.api', function (context) {
+    console.log('We have received a request for API.');
+  });
 ```
 
 Now let's specify a ```.static``` namespace for to define request for static files.
 ```javascript
-  dispatcher.on('request.static', function (arg1, arg2) {
-      console.log('We have received a request for static files.');
-    });
+  dispatcher.on('request.static', function (context) {
+    console.log('We have received a request for static files.');
+  });
 ```
 
 Now when a ```request``` event is emitted both listeners will run but if ```request.api``` event is emitted only the first one will run.
 
 We can also **listen a namespace**:
 ```javascript
-  dispatcher.on('.static', function (arg1, arg2) {
-      console.log('We have received an event for "static" namespace.');
-    });
+  dispatcher.on('.static', function (context) {
+    console.log('We have received an event for "static" namespace.');
+  });
 ```
 
 #### Listening All Events
 Specifying <code>*</code> as event name will let the listener listen for all.
 ```javascript
   dispatcher.on('*', function() {
-      console.log('We are listening everyone');
-    });
+    console.log('We are listening everyone');
+  });
 ```
 
 #### Multi-tier Event Names
@@ -96,10 +96,10 @@ Things can get complicated if listeners are doing asynchronous operations. Dispa
 
 ```javascript
   dispatcher.on('foo', function () {
-      return new Promise(function someAsyncFunction() {
-          // Do asynchronous stuff
-        });
-    });
+    return new Promise(function someAsyncFunction() {
+        // Do asynchronous stuff
+      });
+  });
 ```
 
 ### dispatcher.once(event[, dependencies], listener)
@@ -109,9 +109,9 @@ Same with <code>.on()</code> but it is removed after executed once.
 ### dispatcher.off(event[, listener])
 Removes given listener from dispatcher or removes all listeners that listens given event.
 ```javascript
-  function someHandler(arg1, arg2) {
-      console.log('We have received a request.');
-    }
+  function someHandler(context) {
+    console.log('We have received a request.');
+  }
   dispatcher.off('message', someHandler);
 ```
 or
@@ -134,6 +134,15 @@ Now with arguments:
 ```javascript
   dispatcher.emit('message', 'arg1', 2, true);
 ```
+
+Arguments can be received like below
+```javascript
+  dispatcher.on('message', function (context) {
+    consoel.log('Here are the arguments' + context.arguments);
+  });
+
+```
+
 More complex events can also be emitted like:
 
 ```javascript
