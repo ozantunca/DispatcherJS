@@ -259,14 +259,15 @@
   Dispatcher.prototype.removeListener = Dispatcher.off;
   Dispatcher.prototype.addListener = Dispatcher.on;
 
-  if (typeof define === 'function' && define.amd) {
+  if (typeof exports === 'object') {
+    // CommonJS
+    module.exports = Dispatcher;
+  }
+  else if (typeof define === 'function' && define.amd) {
      // AMD. Register as an anonymous module.
     define(function() {
       return Dispatcher;
     });
-  } else if (typeof exports === 'object') {
-    // CommonJS
-    module.exports = Dispatcher;
   }
   else {
     // Browser global.
