@@ -1,11 +1,9 @@
 {
   "name": "dispatcherjs",
   "description": "An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.",
-  "version": "0.4.2",
-  "main": "./dist/dispatcher",
-  "author": {
-    "name": "Ozan Tunca"
-  },
+  "version": "0.4.3",
+  "main": "./dist/dispatcher.js",
+  "author": "Ozan Tunca <ozan@ozantunca.org> (http://www.ozantunca.org/)",
   "devDependencies": {
     "mocha": "*"
   },

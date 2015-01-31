@@ -1,5 +1,6 @@
-var dispatcher = require('../../dist/dispatcher')
-    , assert = require('assert');
+var Dispatcher = require('../../dist/dispatcher')
+  , dispatcher = new Dispatcher()
+  , assert = require('assert');
 
 
 function someFn() { 1 == 1; };
@@ -285,7 +286,19 @@ describe('lib.dispatcher', function() {
 
       dispatcher.emit('a');
     });
-  })
+  });
+
+  describe('multiple dispatcher instances', function () {
+    it('should have two different instances', function () {
+      dispatcher.removeAllListeners();
+      var dispatcher1 = new Dispatcher();
+      var dispatcher2 = new Dispatcher();
+
+      dispatcher1.on('a', someFn);
+
+      assert.notEqual(dispatcher1.listeners().length, dispatcher2.listeners().length);
+    });
+  });
 });
 
 
