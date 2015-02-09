@@ -107,7 +107,8 @@
   };
 
   Dispatcher.prototype._matchWithNamespace = function (eventName, listenerEventName, namespace) {
-    return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0
+    return eventName == listenerEventName || eventName + namespace == listenerEventName
+    || eventName.indexOf(listenerEventName + ':') == 0
     || listenerEventName == namespace || listenerEventName == '*'
     || eventName.indexOf(listenerEventName.substring(0, listenerEventName.indexOf('.')) + ':') == 0;
   };

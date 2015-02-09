@@ -178,6 +178,15 @@ describe('lib.dispatcher', function() {
       dispatcher.emit('event6.namespace1');
       dispatcher.removeAllListeners();
     });
+
+    it('should match events with namespaces', function (done) {
+      dispatcher.on('a.test', function () {
+        assert.ok(true);
+        done();
+      });
+      dispatcher.emit('a.test');
+      dispatcher.removeAllListeners();
+    })
   });
 
   describe('listeners()', function() {
