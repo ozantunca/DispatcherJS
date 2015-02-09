@@ -24,7 +24,8 @@ bower install dispatcherjs
 If you already have native Node.js EventEmitter implemented in your system, you can safely replace it with DispatcherJS. It won't break. When an error occurs in DispatcherJS, it throws an ```Error``` and stops execution. The difference is how DispatcherJS is initialized. Which is:
 
 ```javascript
-  var dispatcher = require('dispatcherjs');
+  var Dispatcher = require('dispatcherjs')
+    , dispatcher = new Dispatcher();
 ```
 
 ### dispatcher.addListener(event[, dependencies], listener)
