@@ -1,4 +1,4 @@
-var Dispatcher = require('../../dist/dispatcher')
+var Dispatcher = require('../../dist/dispatcher.min')
   , dispatcher = new Dispatcher()
   , assert = require('assert');
 
@@ -180,13 +180,13 @@ describe('lib.dispatcher', function() {
     });
 
     it('should match events with namespaces', function (done) {
-      dispatcher.on('a.test', function () {
+      dispatcher.on('event.test', function () {
         assert.ok(true);
         done();
       });
-      dispatcher.emit('a.test');
+      dispatcher.emit('event.test');
       dispatcher.removeAllListeners();
-    })
+    });
   });
 
   describe('listeners()', function() {
@@ -306,6 +306,21 @@ describe('lib.dispatcher', function() {
       dispatcher1.on('a', someFn);
 
       assert.notEqual(dispatcher1.listeners().length, dispatcher2.listeners().length);
+    });
+
+    it('two instaces can have different maxListeners', function () {
+      var dispatcher1 = new Dispatcher();
+      var dispatcher2 = new Dispatcher();
+      dispatcher1.setMaxListeners(5);
+      dispatcher2.setMaxListeners(20);
+
+      for(var i = 0; i < 100; i++) {
+        dispatcher1.on('event', someFn);
+        dispatcher2.on('event', someFn);
+      }
+
+      assert.equal(dispatcher1.listeners().length, 5);
+      assert.equal(dispatcher2.listeners().length, 20);
     });
   });
 });

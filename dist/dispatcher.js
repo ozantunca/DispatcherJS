@@ -2,6 +2,13 @@
 'use strict';
 
 (function () {
+  var utils = {
+    each: function (arr, iteratee) {
+      for(var l = arr.length; l-- !== 0;)
+        iteratee(arr[l], l);
+    }
+  }
+
   var Dispatcher = function () {
     this._listeners = [];
     this._maxListeners = 10;
@@ -34,6 +41,9 @@
   };
 
   Dispatcher.prototype.on = function (eventName, dependencies, listener) {
+    if(typeof eventName !== 'string')
+      eventName = eventName.toString();
+
     if(this.listeners(eventName).length >= this._maxListeners)
       return;
 
@@ -198,6 +208,9 @@
       throw new Error('Nothing to emit.');
     }
 
+    if(typeof eventName !== 'string')
+      eventName = eventName.toString();
+
     // common variables
     var deferredListeners = []
       , listenerArray = this._listeners.slice()
@@ -223,13 +236,13 @@
       throw new Error('Nothing to emit.');
     }
 
-    while(listener = listenerArray.pop()) {
+    utils.each(listenerArray, function (listener, i) {
       // check if current listener matches
       if(_match(eventName, listener.eventName, namespace)) {
         // dependencies
         if(listener.dependencies) {
           deferredListeners.push(listener);
-          continue;
+          return;
         }
 
         // run listener
@@ -248,9 +261,9 @@
 
         // remove one time listeners
         if(listener.once)
-          _this._listeners.splice(listenerArray.length, 1);
+          _this._listeners.splice(i, 1);
       }
-    }
+    });
 
     // check if there is callback dependency
     if(deferredListeners.length > 0)
