@@ -3,14 +3,14 @@ DispatcherJS
 
 An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.
 
-# Features
+## Features
 - Namespaces
 - Callback dependency
 - Multi-tier event naming
 - Compatible with Node.js EventEmitter
 - Works on browser without any dependency
 
-# Installation
+## Installation
 As an NPM module
 ```sh
 npm install dispatcherjs
@@ -20,7 +20,7 @@ or as a bower component
 bower install dispatcherjs
 ```
 
-# Usage
+## Usage
 If you already have native Node.js EventEmitter implemented in your system, you can safely replace it with DispatcherJS. It won't break. When an error occurs in DispatcherJS, it throws an ```Error``` and stops execution. The difference is how DispatcherJS is initialized. Which is:
 
 ```javascript
@@ -156,3 +156,7 @@ Limits number of listeners that can be assigned to a an event. Default is 10.
 
 ### Auto-emitted Events
 There are two events emitted automatically. One <code>'newListener'</code> which will be emitted when there is a new listener added to dispatcher. The other one is <code>'removeListener'</code> which will be emitted when a listener is removed. Only exception to this is when <code>dispatcher.removeAllListeners()</code> called because, you know, all listeners are removed including <code>removeListener</code> listeners.
+
+## Roadmap
+- .stopFlow() - A function in <code>context</code> that will prevent any other listeners from being executed after the current one.
+- .applyEmit( event[, args..] ) - A function in Dispatcher that returns a function which will send emit given event when executed. Useful for code simplying.
