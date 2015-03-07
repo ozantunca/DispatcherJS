@@ -1,4 +1,4 @@
-var Dispatcher = require('../../dist/dispatcher.min')
+var Dispatcher = require('../../dist/dispatcher')
   , dispatcher = new Dispatcher()
   , assert = require('assert');
 
@@ -27,7 +27,6 @@ describe('lib.dispatcher', function() {
       });
       dispatcher.emit('all1');
       dispatcher.emit('all2');
-      dispatcher.removeAllListeners();
     });
 
     it('should support multi-tier event names', function (done) {
@@ -146,9 +145,11 @@ describe('lib.dispatcher', function() {
       dispatcher.emit('event3');
     });
 
-    it('should emit an event with parameters', function (done) {
+    it('should emit an event with arguments', function (done) {
       dispatcher.on('event6', function (ctx) {
-        assert.ok(ctx.arguments.length > 0 && ctx.event == 'event6', 'caught an emitted event');
+        assert.ok(ctx.arguments.length > 0 && ctx.event == 'event6');
+        assert.equal(ctx.arguments[0], 'test');
+        assert.equal(ctx.arguments[1], 'something');
         dispatcher.off('event6');
         done();
       });
@@ -322,6 +323,68 @@ describe('lib.dispatcher', function() {
       assert.equal(dispatcher1.listeners().length, 5);
       assert.equal(dispatcher2.listeners().length, 20);
     });
+  });
+
+  describe('stopPropagation()', function () {
+    it('should stop after 1st event', function (done) {
+      var ok = true;
+
+      dispatcher.on('e1.ns', function (ctx) {
+        ctx.stopPropagation();
+      });
+
+      dispatcher.on('e1', '.ns', function (ctx) {
+        ok = false;
+      });
+
+      dispatcher.emit('e1');
+
+      setTimeout(function () {
+        assert.ok(ok);
+        done();
+      }, 1000);
+
+      dispatcher.removeAllListeners();
+    });
+  });
+
+  describe('applyEmit()', function () {
+    it('should return a function', function () {
+      assert.equal(typeof dispatcher.applyEmit('e1'), 'function');
+    })
+
+    it('should emit event on function run', function (done) {
+      dispatcher.on('e1', function () {
+        done();
+      })
+
+      dispatcher.applyEmit('e1')();
+    })
+
+    it('shouldn\'t misemit', function (done) {
+      var ok = true;
+
+      dispatcher.on('e1', function (ctx) {
+        ok = false;
+      });
+
+      dispatcher.applyEmit('e2')();
+
+      setTimeout(function () {
+        assert.ok(ok);
+        dispatcher.removeAllListeners();
+        done();
+      }, 1000);
+    });
+
+    it('should emit arguments', function (done) {
+      dispatcher.on('e1', function (ctx) {
+        assert.equal(ctx.arguments.length, 4);
+        done();
+      });
+
+      dispatcher.applyEmit('e1', 'arg1', 2, 2.45, function(){})();
+    })
   });
 });
 
