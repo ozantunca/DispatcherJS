@@ -278,7 +278,7 @@
     var _this = this;
     var args = typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 1) : [];
     args.unshift(eventName);
-// console.log(args)
+
     return function () {
       _this.emit.apply(_this, args);
     }
