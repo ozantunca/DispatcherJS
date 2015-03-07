@@ -218,7 +218,11 @@
       , _this = this
       , context = {
         arguments: typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 1) : [],
-        event: eventName
+        event: eventName,
+        stopPropagation: function () {
+          listenerArray = [];
+          deferredListeners = [];
+        }
       }
       , listener, _match, promise;
 
@@ -268,6 +272,16 @@
     // check if there is callback dependency
     if(deferredListeners.length > 0)
       _this._deferredLoop(deferredListeners, waitingAsync, context);
+  };
+
+  Dispatcher.prototype.applyEmit = function (eventName) {
+    var _this = this;
+    var args = typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 1) : [];
+    args.unshift(eventName);
+// console.log(args)
+    return function () {
+      _this.emit.apply(_this, args);
+    }
   };
 
   Dispatcher.prototype.removeListener = Dispatcher.off;
