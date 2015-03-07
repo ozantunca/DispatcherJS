@@ -1,5 +1,6 @@
 DispatcherJS
 ============
+[![NPM Version](http://img.shields.io/npm/v/dispatcherjs.svg?style=flat)](https://www.npmjs.org/package/dispatcherjs)
 
 An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.
 
