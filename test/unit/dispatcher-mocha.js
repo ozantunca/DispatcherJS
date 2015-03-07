@@ -1,4 +1,4 @@
-var Dispatcher = require('../../dist/dispatcher')
+var Dispatcher = require('../../dist/dispatcher.min')
   , dispatcher = new Dispatcher()
   , assert = require('assert');
 
