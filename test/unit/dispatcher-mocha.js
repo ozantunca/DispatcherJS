@@ -6,14 +6,13 @@ var Dispatcher = require('../../dist/dispatcher.min')
 function someFn() { 1 == 1; };
 function someFn2() { 2 == 2; };
 
-describe('lib.dispatcher', function() {
+describe('dispatcher', function() {
 
   describe('on()', function() {
     it('should add to listeners array', function () {
       var len = size(dispatcher._listeners);
       dispatcher.on('event1', someFn);
       assert.equal(size(dispatcher._listeners), len + 1);
-      dispatcher.removeAllListeners();
     });
 
     it('should listen all', function (done) {
@@ -47,30 +46,27 @@ describe('lib.dispatcher', function() {
       dispatcher.emit('tier1:tier2:tier3');
       dispatcher.emit('tier1.namespace');
       dispatcher.emit('tier1:tier2.namespace2');
-      dispatcher.removeAllListeners();
     });
 
     it('should only catch events with same number of tiers or more', function (done) {
       var count = 0;
-      dispatcher.on('tier1:tier2', function () {
+      dispatcher.on('t1:t2', function () {
         count++;
         if(count == 2) {
           assert.ok(true);
           done();
         }
       });
-      dispatcher.emit('tier1');
-      dispatcher.emit('tier1:tier2');
-      dispatcher.emit('tier1:tier2:tier3');
-      dispatcher.removeAllListeners();
+      dispatcher.emit('t1');
+      dispatcher.emit('t1:t2');
+      dispatcher.emit('t1:t2:t3');
     });
 
     it('should\'nt get more than 10 listeners', function () {
       for(var i = 0; i < 14; i++) {
         dispatcher.on('a', someFn);
       }
-      assert.equal(dispatcher._listeners.length, 10);
-      dispatcher.removeAllListeners();
+      assert.equal(size(dispatcher.listeners('a')), 10);
     })
 
     it('should emit \'newListener\' event', function (done) {
@@ -79,7 +75,7 @@ describe('lib.dispatcher', function() {
         done();
       });
       dispatcher.on('event1', someFn);
-      dispatcher.removeAllListeners();
+      dispatcher.off('newListener');
     });
   });
 
@@ -96,12 +92,13 @@ describe('lib.dispatcher', function() {
       assert.equal(size(dispatcher._listeners), len - 1);
     });
 
-    it('should emit \'newListener\' event', function (done) {
-      dispatcher.on('newListener', function () {
+    it('should emit \'newListener\' event for once', function (done) {
+      dispatcher.once('newListener', function () {
         assert.ok(true);
         done();
       });
-      dispatcher.once('event1', someFn);
+      dispatcher.once('event3', someFn);
+      dispatcher.once('event3', someFn);
       dispatcher.removeAllListeners();
     });
   });
