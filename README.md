@@ -99,8 +99,18 @@ Things can get complicated if listeners are doing asynchronous operations. Dispa
 ```javascript
   dispatcher.on('foo', function () {
     return new Promise(function someAsyncFunction() {
-        // Do asynchronous stuff
-      });
+      // Do asynchronous stuff
+    });
+  });
+```
+
+#### Stop Propagation
+A function accessible through <code>context</code> parameter of listeners. It prevents other listeners that are bound to this event from being executed. The listener that <code>.stopPropagation()</code> called from will continue it's execution as expected.
+
+```javascript
+  dispatcher.on('foo', function (context) {
+    context.stopPropagation();
+    // Do stuff
   });
 ```
 
@@ -140,7 +150,7 @@ Now with arguments:
 Arguments can be received like below
 ```javascript
   dispatcher.on('message', function (context) {
-    consoel.log('Here are the arguments' + context.arguments);
+    console.log('Here are the arguments' + context.arguments);
   });
 
 ```
@@ -152,12 +162,25 @@ More complex events can also be emitted like:
 ```
 An event without event name will not be emitted. Dispatcher will not emit a <code>.api</code> event which has only a namespace.
 
+### dispatcher.applyEmit(event[, arguments...])
+A convenience function that returns a function which when called emits an event with given event name and parameters. So,
+
+```javascript
+  dispatcher.applyEmit('message')();
+```
+is same with
+
+```javascript
+  dispatcher.emit('message');
+```
+Useful when an emit function needs to be chained with some other function. For example you want a <code>buttonClick</code> event to be emitted when every time a button is clicked:
+
+```javascript
+  $('button').on('click', dispatcher.applyEmit('buttonClick'));
+```
+
 ### dispatcher.setMaxListeners(limitNumber)
 Limits number of listeners that can be assigned to a an event. Default is 10.
 
 ### Auto-emitted Events
 There are two events emitted automatically. One <code>'newListener'</code> which will be emitted when there is a new listener added to dispatcher. The other one is <code>'removeListener'</code> which will be emitted when a listener is removed. Only exception to this is when <code>dispatcher.removeAllListeners()</code> called because, you know, all listeners are removed including <code>removeListener</code> listeners.
-
-## Roadmap
-- .stopFlow() - A function in <code>context</code> that will prevent any other listeners from being executed after the current one.
-- .applyEmit( event[, args..] ) - A function in Dispatcher that returns a function which will send emit given event when executed. Useful for code simplying.
