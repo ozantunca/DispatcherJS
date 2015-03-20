@@ -62,7 +62,7 @@
   };
 
   Dispatcher.prototype.once = function (eventName, dependencies, listener) {
-    this.on(eventName, dependencies, listenerEventName, true);
+    this.on(eventName, dependencies, listener, true);
   };
 
   Dispatcher.prototype.off = function (eventName, listener) {
@@ -280,13 +280,15 @@
 
   Dispatcher.prototype.applyEmit = function (eventName) {
     var _this = this;
+    var args = typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 0) : [];
+
     return function () {
-      _this.emit.apply(_this, arguments);
+      _this.emit.apply(_this, args);
     }
   };
 
-  Dispatcher.prototype.removeListener = Dispatcher.off;
-  Dispatcher.prototype.addListener = Dispatcher.on;
+  Dispatcher.prototype.removeListener = Dispatcher.prototype.off;
+  Dispatcher.prototype.addListener = Dispatcher.prototype.on;
 
   if (typeof exports === 'object') {
     // CommonJS
