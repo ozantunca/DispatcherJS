@@ -1,4 +1,4 @@
-var Dispatcher = require('../../dist/dispatcher.min')
+var Dispatcher = require('../dist/dispatcher')
   , dispatcher = new Dispatcher()
   , assert = require('assert');
 
@@ -7,12 +7,11 @@ function someFn() { 1 == 1; };
 function someFn2() { 2 == 2; };
 
 describe('dispatcher', function() {
-
   describe('on()', function() {
     it('should add to listeners array', function () {
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.on('event1', someFn);
-      assert.equal(size(dispatcher._listeners), len + 1);
+      assert.equal(dispatcher._listeners.length, len + 1);
     });
 
     it('should listen all', function (done) {
@@ -66,7 +65,7 @@ describe('dispatcher', function() {
       for(var i = 0; i < 14; i++) {
         dispatcher.on('a', someFn);
       }
-      assert.equal(size(dispatcher.listeners('a')), 10);
+      assert.equal(dispatcher.listeners('a').length, 10);
     })
 
     it('should emit \'newListener\' event', function (done) {
@@ -81,15 +80,15 @@ describe('dispatcher', function() {
 
   describe('once()', function() {
     it('should add to listeners array when .once() called', function () {
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.once('event2', someFn);
-      assert.equal(size(dispatcher._listeners), len + 1);
+      assert.equal(dispatcher._listeners.length, len + 1);
     });
 
     it('should remove from listeners array when .emit() called', function () {
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.emit('event2');
-      assert.equal(size(dispatcher._listeners), len - 1);
+      assert.equal(dispatcher._listeners.length, len - 1);
     });
 
     it('should emit \'newListener\' event for once', function (done) {
@@ -106,18 +105,18 @@ describe('dispatcher', function() {
   describe('off()', function() {
     it('should remove from listeners array', function () {
       dispatcher.on('event1', someFn);
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.off('event1');
-      assert.equal(size(dispatcher._listeners), len - 1);
+      assert.equal(dispatcher._listeners.length, len - 1);
     });
 
     it('should be able to remove a spesific listener', function () {
       dispatcher.on('event1', someFn);
       dispatcher.on('event1', someFn2);
 
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.off('event1', someFn);
-      assert.equal(size(dispatcher._listeners), len - 1);
+      assert.equal(dispatcher._listeners.length, len - 1);
       dispatcher.removeAllListeners();
     });
 
@@ -154,7 +153,7 @@ describe('dispatcher', function() {
     });
 
     it('should listen event4 of anything', function (done) {
-      var len = size(dispatcher._listeners);
+      var len = dispatcher._listeners.length;
       dispatcher.on('event4', function () {
         assert.ok(true);
         dispatcher.off('event4');
@@ -293,6 +292,31 @@ describe('dispatcher', function() {
 
       dispatcher.emit('a');
     });
+
+    it('should run after everything else', function (done) {
+      var count = 0;
+
+      dispatcher.removeAllListeners();
+      dispatcher.on('a.ns', function () {
+        count++;
+      });
+      dispatcher.on('a', '*', function () {
+        assert.equal(count, 5);
+        done();
+      });
+      dispatcher.on('a:t1', function () {
+        count++;
+      });
+      dispatcher.on('a:t:t2.ns', function () {
+        count++;
+      });
+      dispatcher.on('a', function () {
+        count++;
+      });
+      dispatcher.on('a:t.ns', function () {
+        count++;
+      });
+    });
   });
 
   describe('multiple dispatcher instances', function () {
@@ -352,9 +376,9 @@ describe('dispatcher', function() {
 
     it('should emit event on function run', function (done) {
       dispatcher.on('e1', function () {
+        assert.ok(true);
         done();
-      })
-
+      });
       dispatcher.applyEmit('e1')();
     })
 
@@ -384,24 +408,3 @@ describe('dispatcher', function() {
     })
   });
 });
-
-
-function size(listeners) {
-  if(Array.isArray(listeners)) {
-    return listeners.length;
-  }
-  else if(typeof listeners === 'object') {
-    var len = 0;
-    for(var key in listeners) {
-      var item = listeners[key];
-      len += size(item);
-    }
-    return len;
-  }
-  else if(listeners || listeners == 0) {
-    return 1;
-  }
-  else {
-    return 0;
-  }
-}

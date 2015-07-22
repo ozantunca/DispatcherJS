@@ -1,3 +1,7 @@
+/**
+ * @author: Ozan Tunca
+ * @version: v1.0.0
+*/
 
 'use strict';
 
@@ -35,7 +39,6 @@
     this._listeners = [];
   };
 
-    // some other time
   Dispatcher.prototype.setMaxListeners = function (num) {
     this._maxListeners = num;
   };
@@ -67,6 +70,7 @@
 
   Dispatcher.prototype.off = function (eventName, listener) {
     if (typeof eventName === 'undefined') return;
+    // Remove only a specific listener
     if (listener) {
       var i = this._listeners.length;
       while (i--) {
@@ -159,11 +163,8 @@
 
     while (listener = deferredListeners.pop()) {
       if (deadlockCounter == 0) {
-        if (!waitingAsync) {
-            throw new Error('Deadlock!');
-        } else {
-          return;
-        }
+        if (waitingAsync) return;
+        else throw new Error('Deadlock!');
       }
       dependent = false;
 
@@ -289,6 +290,7 @@
 
   Dispatcher.prototype.removeListener = Dispatcher.prototype.off;
   Dispatcher.prototype.addListener = Dispatcher.prototype.on;
+  Dispatcher.prototype.one = Dispatcher.prototype.once;
 
   if (typeof exports === 'object') {
     // CommonJS
