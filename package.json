@@ -5,8 +5,7 @@
   "main": "./dist/dispatcher.min.js",
   "author": "Ozan Tunca <ozan@ozantunca.org> (http://www.ozantunca.org/)",
   "devDependencies": {
-    "mocha": "*",
-    "mocha-phantomjs": "*"
+    "mocha": "*"
   },
   "repository": {
     "type": "git",
@@ -22,7 +21,7 @@
     }
   ],
   "scripts": {
-    "test": "mocha test/node-mocha.js; mocha-phantomjs test/browser-mocha.html"
+    "test": "mocha test/node-mocha.js"
   },
   "readmeFilename": "README.md",
   "homepage": "https://github.com/ozantunca/DispatcherJS"
