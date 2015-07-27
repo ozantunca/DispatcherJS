@@ -27,10 +27,8 @@ describe('dispatcher', function() {
       this.timeout(3000);
       var count = 0;
       setTimeout(function () {
-        if(count == 11) {
-          assert.ok(true);
-          done();
-        }
+        assert.equal(count, 11);
+        done();
       }, 1500);
       dispatcher.on('tier1', function () { count++; });
       dispatcher.on('tier1:tier2.namespace', function () { count++; })
@@ -226,7 +224,7 @@ describe('dispatcher', function() {
       dispatcher.removeAllListeners();
       var count = 0;
       dispatcher.on('event9', ['.namespace2', '.namespace3'], function () {
-        assert.ok(count == 2, 'event9 not executed last')
+        assert.equal(count, 2, 'event9 not executed last')
         done();
       });
       dispatcher.on('event9.namespace2', ['.namespace3'], function () {
@@ -300,18 +298,19 @@ describe('dispatcher', function() {
         assert.equal(count, 5);
         done();
       });
-      dispatcher.on('a:t1', function () {
+      dispatcher.on('a:t', '.ns', function () {
         count++;
       });
       dispatcher.on('a:t:t2.ns', function () {
         count++;
       });
-      dispatcher.on('a', function () {
+      dispatcher.on('a', '.ns', function () {
         count++;
       });
       dispatcher.on('a:t.ns', function () {
         count++;
       });
+      dispatcher.emit('a:t:t2');
     });
   });
 

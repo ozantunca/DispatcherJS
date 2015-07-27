@@ -122,24 +122,24 @@
   Dispatcher.prototype._matchWithNamespace = function (eventName, listenerEventName, namespace) {
     return eventName == listenerEventName || eventName + namespace == listenerEventName
     || eventName.indexOf(listenerEventName + ':') == 0
-    || listenerEventName == namespace || listenerEventName == '*'
+    || listenerEventName == namespace || listenerEventName == '*' || eventName == '*'
     || eventName.indexOf(listenerEventName.substring(0, listenerEventName.indexOf('.')) + ':') == 0;
   };
 
   Dispatcher.prototype._matchEvent = function (eventName, listenerEventName) {
     return eventName == listenerEventName || eventName.indexOf(listenerEventName + ':') == 0
-    || listenerEventName.indexOf(eventName + '.') == 0 || listenerEventName == '*'
+    || listenerEventName.indexOf(eventName + '.') == 0 || listenerEventName == '*' || eventName == '*'
     || eventName.indexOf(listenerEventName.substring(0, listenerEventName.indexOf('.')) + ':') == 0;
   };
 
   Dispatcher.prototype._matchArray = function (listenerArray, eventName) {
-    var _match, listener;
+    var _match, listener, eventParts, namespace;
 
     // check for namespace
     if (eventName.indexOf('.') != -1) {
-      var eventParts = eventName.split('.')
-        , eventName = eventParts[0]
-        , namespace = eventParts[1] ? '.' + eventParts[1] : null;
+      eventParts = eventName.split('.')
+      eventName = eventParts[0]
+      namespace = eventParts[1] ? '.' + eventParts[1] : null;
       _match = this._matchWithNamespace;
     } else {
       _match = this._matchEvent;
