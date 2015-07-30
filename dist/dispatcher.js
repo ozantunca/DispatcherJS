@@ -10,6 +10,18 @@
     each: function (arr, iteratee) {
       for(var l = arr.length; l-- !== 0;)
         iteratee(arr[l], l);
+    },
+    error: function (err) {
+      err = new Error(err);
+
+      if (typeof console.error === 'function')
+        console.error(err);
+      else if (typeof console.debug === 'function')
+        console.debug(err);
+      else
+        console.log(err);
+
+      return false;
     }
   }
 
@@ -29,7 +41,7 @@
       newListener.dependencies = dependencies;
     } else if (typeof dependencies == 'string') {
       newListener.dependencies = [dependencies];
-    } else throw new Error('EventHandler is not a function.');
+    } else return utils.error('EventHandler is not a function.');
 
     return newListener;
   };
@@ -164,7 +176,7 @@
     while (listener = deferredListeners.pop()) {
       if (deadlockCounter == 0) {
         if (waitingAsync) return;
-        else throw new Error('Deadlock!');
+        else return utils.error('Deadlock!');
       }
       dependent = false;
 
@@ -207,7 +219,7 @@
 
   Dispatcher.prototype.emit = function (eventName) {
     if (!eventName) {
-      throw new Error('Nothing to emit.');
+      return utils.error('Nothing to emit.');
     }
 
     if (typeof eventName !== 'string') {
@@ -240,7 +252,7 @@
     }
 
     if (!eventName) {
-      throw new Error('Nothing to emit.');
+      return utils.error('Nothing to emit.');
     }
 
     utils.each(listenerArray, function (listener, i) {
