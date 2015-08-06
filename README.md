@@ -12,6 +12,18 @@ An event emitter implementation that supports namespaces and callback dependency
 - Compatible with Node.js EventEmitter
 - Works on browser without any dependency
 
+## Functions
+- [on](#dispatcheronevent-dependencies-listener)
+- [addListener](#dispatcheraddlistenerevent-dependencies-listener)
+- [once](#dispatcheronceevent-dependencies-listener)
+- [off](#dispatcheroffevent-listener)
+- [removeListener](#dispatcherremovelistenerevent-listener)
+- [removeAllListeners](#dispatcherremovealllistenersevent)
+- [emit](#dispatcheremitevent-arguments)
+- [applyEmit](#dispatcherapplyemitevent-arguments)
+- [listeners](#dispatcherlistenersevent)
+- [setMaxListeners](#dispatchersetmaxlistenerslimitnumber)
+
 ## Installation
 As an NPM module
 ```sh
