@@ -1,7 +1,7 @@
 var Dispatcher = require('../dist/dispatcher')
   , dispatcher = new Dispatcher()
   , _ = require('underscore')
-  , assert = require('assert');
+  , assert = require('chai').assert;
 
 
 function someFn() { 1 == 1; };

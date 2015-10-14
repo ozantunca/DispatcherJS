@@ -5,8 +5,10 @@
   "main": "./dist/dispatcher.js",
   "author": "Ozan Tunca <ozan@ozantunca.org> (http://www.ozantunca.org/)",
   "devDependencies": {
+    "chai": "^3.3.0",
     "mocha": "*",
-    "uglifyjs": "^2.4.10"
+    "uglifyjs": "^2.4.10",
+    "underscore": "^1.8.3"
   },
   "repository": {
     "type": "git",
