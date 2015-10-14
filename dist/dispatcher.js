@@ -22,6 +22,12 @@
         console.log(err);
 
       return false;
+    },
+    parseArgs: function (args, start) {
+      var l = args.length;
+      var newArgs = new Array(l - start);
+      while (l-- !== start) newArgs[l - start] = args[l];
+      return newArgs;
     }
   }
 
@@ -118,10 +124,11 @@
     else
       _match = this._matchEvent;
 
-    if (typeof this._listeners.filter == 'function')
+    if (typeof this._listeners.filter == 'function') {
       return this._listeners.filter(function (listener) {
         return _match(eventName, listener.eventName, namespace);
       });
+    }
     else {
       for (var i = 0; i < this._listeners; i++) {
         if (_match(eventName, listener.eventName, namespace))
@@ -232,7 +239,7 @@
       , waitingAsync = 0
       , _this = this
       , context = {
-        arguments: typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 1) : [],
+        arguments: utils.parseArgs(arguments, 1),
         event: eventName,
         stopPropagation: function () {
           listenerArray = [];
@@ -293,7 +300,7 @@
 
   Dispatcher.prototype.applyEmit = function (eventName) {
     var _this = this;
-    var args = typeof arguments == 'object' ? Array.prototype.slice.call(arguments, 0) : [];
+    var args = utils.parseArgs(arguments, 0);
 
     return function () {
       _this.emit.apply(_this, args);

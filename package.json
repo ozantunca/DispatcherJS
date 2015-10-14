@@ -1,11 +1,12 @@
 {
   "name": "dispatcherjs",
   "description": "An event emitter implementation that supports namespaces and callback dependency. Works in Node.js and browser.",
-  "version": "1.0.0",
-  "main": "./dist/dispatcher.min.js",
+  "version": "0.5.2",
+  "main": "./dist/dispatcher.js",
   "author": "Ozan Tunca <ozan@ozantunca.org> (http://www.ozantunca.org/)",
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*",
+    "uglifyjs": "^2.4.10"
   },
   "repository": {
     "type": "git",
@@ -21,7 +22,8 @@
     }
   ],
   "scripts": {
-    "test": "mocha test/node-mocha.js"
+    "test": "mocha test/node-mocha.js",
+    "build": "uglifyjs dist/dispatcher.js -o dist/dispatcher.min.js;"
   },
   "readmeFilename": "README.md",
   "homepage": "https://github.com/ozantunca/DispatcherJS"

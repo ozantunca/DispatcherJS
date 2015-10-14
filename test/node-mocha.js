@@ -1,5 +1,6 @@
 var Dispatcher = require('../dist/dispatcher')
   , dispatcher = new Dispatcher()
+  , _ = require('underscore')
   , assert = require('assert');
 
 
@@ -9,15 +10,15 @@ function someFn2() { 2 == 2; };
 describe('dispatcher', function() {
   describe('on()', function() {
     it('should add to listeners array', function () {
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.on('event1', someFn);
-      assert.equal(dispatcher._listeners.length, len + 1);
+      assert.equal(_.size(dispatcher._listeners), len + 1);
     });
 
     it('should listen all', function (done) {
-      var called = 1;
+      var called = 0;
       dispatcher.on('*', function () {
-        if(called++ == 2) {
+        if(++called == 2) {
           assert.ok(true);
           dispatcher.off('*');
           done();
@@ -36,7 +37,7 @@ describe('dispatcher', function() {
       }, 1500);
       dispatcher.on('tier1', function () { count++; });
       dispatcher.on('tier1:tier2.namespace', function () { count++; })
-      dispatcher.on('tier1.namespace2', function () { count++; })
+      dispatcher.on('tier1.namespakce2', function () { count++; })
 
       dispatcher.emit('tier1');
       dispatcher.emit('tier1:tier2');
@@ -78,15 +79,15 @@ describe('dispatcher', function() {
 
   describe('once()', function() {
     it('should add to listeners array when .once() called', function () {
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.once('event2', someFn);
-      assert.equal(dispatcher._listeners.length, len + 1);
+      assert.equal(_.size(dispatcher._listeners), len + 1);
     });
 
     it('should remove from listeners array when .emit() called', function () {
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.emit('event2');
-      assert.equal(dispatcher._listeners.length, len - 1);
+      assert.equal(_.size(dispatcher._listeners), len - 1);
     });
 
     it('should emit \'newListener\' event for once', function (done) {
@@ -103,28 +104,33 @@ describe('dispatcher', function() {
   describe('off()', function() {
     it('should remove from listeners array', function () {
       dispatcher.on('event1', someFn);
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.off('event1');
-      assert.equal(dispatcher._listeners.length, len - 1);
+      assert.equal(_.size(dispatcher._listeners), len - 1);
     });
 
     it('should be able to remove a spesific listener', function () {
       dispatcher.on('event1', someFn);
       dispatcher.on('event1', someFn2);
 
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.off('event1', someFn);
-      assert.equal(dispatcher._listeners.length, len - 1);
+      assert.equal(_.size(dispatcher._listeners), len - 1);
       dispatcher.removeAllListeners();
     });
 
     it('should emit \'removeListener\' event', function (done) {
+      var count = 0;
       dispatcher.on('removeListener', function () {
-        assert.ok(true);
-        done();
+        if (++count === 2) {
+          assert.ok(true);
+          done();
+        }
       });
       dispatcher.on('event1', someFn);
       dispatcher.off('event1', someFn);
+      dispatcher.on('event1', someFn);
+      dispatcher.off('event1');
       dispatcher.removeAllListeners();
     });
   });
@@ -140,18 +146,22 @@ describe('dispatcher', function() {
     });
 
     it('should emit an event with arguments', function (done) {
+      function a() {};
+
       dispatcher.on('event6', function (ctx) {
         assert.ok(ctx.arguments.length > 0 && ctx.event == 'event6');
         assert.equal(ctx.arguments[0], 'test');
         assert.equal(ctx.arguments[1], 'something');
+        assert.equal(ctx.arguments[2], a);
+        assert.equal(ctx.arguments[3], 123);
         dispatcher.off('event6');
         done();
       });
-      dispatcher.emit('event6', 'test', 'something');
+      dispatcher.emit('event6', 'test', 'something', a, 123);
     });
 
     it('should listen event4 of anything', function (done) {
-      var len = dispatcher._listeners.length;
+      var len = _.size(dispatcher._listeners);
       dispatcher.on('event4', function () {
         assert.ok(true);
         dispatcher.off('event4');
@@ -161,6 +171,8 @@ describe('dispatcher', function() {
     });
 
     it('should listen namespace', function (done) {
+      dispatcher.removeAllListeners();
+
       var called = 1;
       dispatcher.on('.namespace1', function () {
         if(called++ == 2) {
@@ -171,39 +183,42 @@ describe('dispatcher', function() {
       });
       dispatcher.emit('event5.namespace1');
       dispatcher.emit('event6.namespace1');
-      dispatcher.removeAllListeners();
     });
 
     it('should match events with namespaces', function (done) {
+      dispatcher.removeAllListeners();
       dispatcher.on('event.test', function () {
         assert.ok(true);
         done();
       });
       dispatcher.emit('event.test');
-      dispatcher.removeAllListeners();
     });
   });
 
   describe('listeners()', function() {
     it('should return listeners of an event', function () {
+      dispatcher.removeAllListeners();
+
       dispatcher.on('a', someFn);
       assert.equal(dispatcher.listeners('a').length, 1);
-
-      dispatcher.removeAllListeners();
     });
 
     it('should match multiple events', function () {
+      dispatcher.removeAllListeners();
+
       dispatcher.on('a', function (){});
       dispatcher.on('a.namespace', function (){});
       dispatcher.on('a:b.namespace', someFn);
       assert.equal(dispatcher.listeners('a:b').length, 3);
-
-      dispatcher.removeAllListeners();
+      assert.equal(dispatcher.listeners('a').length, 2);
+      assert.equal(dispatcher.listeners('a.namespace').length, 2);
     });
   });
 
   describe('callback dependency', function () {
     it('should execute event8 after event8.namespace', function (done) {
+      dispatcher.removeAllListeners();
+
       var result = false;
       dispatcher.on('event8.namespace', function () {
         result = true;
@@ -371,7 +386,7 @@ describe('dispatcher', function() {
   describe('applyEmit()', function () {
     it('should return a function', function () {
       assert.equal(typeof dispatcher.applyEmit('e1'), 'function');
-    })
+    });
 
     it('should emit event on function run', function (done) {
       dispatcher.on('e1', function () {
@@ -379,7 +394,7 @@ describe('dispatcher', function() {
         done();
       });
       dispatcher.applyEmit('e1')();
-    })
+    });
 
     it('shouldn\'t misemit', function (done) {
       var ok = true;
@@ -404,6 +419,6 @@ describe('dispatcher', function() {
       });
 
       dispatcher.applyEmit('e1', 'arg1', 2, 2.45, function(){})();
-    })
+    });
   });
 });
